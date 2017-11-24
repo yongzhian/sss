@@ -25,6 +25,9 @@
         <Logger name="cn.zain.dao" level="trace" additivity="false">
             <AppenderRef ref="Console"></AppenderRef>
         </Logger>
+        <Logger name="com.mongodb" level="info" additivity="false">
+            <AppenderRef ref="Console"></AppenderRef>
+        </Logger>
         <!-- 只有大于level才会被打印-->
         <Root level="debug">
             <AppenderRef ref="Console"/>

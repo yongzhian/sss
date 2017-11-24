@@ -6,22 +6,18 @@
 <!DOCTYPE>
 <html>
 <head>
-    <title>SSM index</title>
+    <title>SSS</title>
 </head>
 <body>
-<h2>springmvc+spring+mybatis框架</h2>
-<h3>欢迎${sysUser.username}</h3>
+<h5>Spring5.0.1.RELEASE+SpringDataJPA2.0.1.RELEASE+Hibernate5.2.12.Final</h5><br>
+
+<h3>欢迎：${sysUser.username}</h3>
+
+<a href="<%=path%>/sysuser/grid.do">查看用户信息</a>
 
 
-    collection:<input id="collectionName" value="http_api_log">
-    page num:<input id="pageNum" value="1">
-    page Size:<input id="pageSize" value="20">
-    <input type="button" value="导出" onclick="exoprt()">
 
-    <input type="button" value="流导出" onclick="exoprt2()">
-
-
-<h5>Power by Zain</h5>
+<h5>Power by Zain 2017年11月24日</h5>
 
 <script charset="utf-8" type="text/javascript" src="/lib/jquery/1.9.1/jquery.js"></script>
 <script charset="utf-8" type="text/javascript" src="/static/js/index.js"></script>

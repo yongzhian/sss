@@ -55,6 +55,8 @@ dependencies {
 
     compile (group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: "$log4jVersion")
 
+    compile("javax.servlet:jstl:1.2")
+
     providedCompile("javax.servlet:servlet-api:2.5")
 
     testCompile("org.apache.commons:commons-dbcp2:$orgApacheCommonsDbcp2Version")

@@ -22,10 +22,10 @@ public interface SysUserDao extends JpaRepository<SysUser, Long> {
     /**
      * 功能说明：分页查询id大于指定值的记录
      *
-     * @param id       Long
+     * @param isValid       String
      * @param pageable Pageable
      * @return Page<SysUser>
      */
-    @Query("select a from SysUser a where a.id > ?1")
-    public Page<SysUser> findByBalanceGreaterThan(Long id, Pageable pageable);
+    @Query("select a from SysUser a where a.isValid = ?1")
+    Page<SysUser> findValidSysUserListByPage(String isValid, Pageable pageable);
 }

@@ -1,7 +1,9 @@
 package cn.zain.controller;
 
+import cn.zain.model.entity.SysUser;
 import cn.zain.service.StatisticsService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -22,8 +24,6 @@ import java.util.Map;
 @Controller
 @RequestMapping("/sysuser")
 public class SysUserController extends AbstractController{
-    @Resource
-    private StatisticsService statisticsService;
 
     @RequestMapping(value = "/get.do", method = RequestMethod.GET)
     @ResponseBody
@@ -50,32 +50,11 @@ public class SysUserController extends AbstractController{
         return returnMap;
     }
 
-    @RequestMapping(value = "/export.do", method = RequestMethod.POST)
-    @ResponseBody
-    public Map<String, Object>  exportFilePath(@Param("collectionName")String collectionName, @Param("pageNum")int pageNum, @Param("pageSize")int pageSize) {
-       logger.debug("exportFilePath");
-//       根目录 不够安全，采用SecurityFilter拦截，如需进一步效果则sessionID和文件名绑定校验
-       String dir = request.getSession().getServletContext().getRealPath("/excel") ;
-
-//        String dir = request.getSession().getServletContext().getRealPath("/WEB-INF") ; //此目录下spring mvc除了流没有较好方式返回，
-        String fileName = statisticsService.exportMongoDbData2ExcelByFile(collectionName,pageNum,pageSize,dir);
-        if(StringUtils.isBlank(fileName)){
-            return genFailReturnMap(null,"导出失败!");
-        }
-        Map<String, Object> returnMap = genSuccessReturnMap();
-        returnMap.put("fileName","/excel/" + fileName);
-        return returnMap;
-    }
-
-    @RequestMapping(value = "/export2.do", method = RequestMethod.GET)
-    public void exportWithStream(HttpServletResponse response,@Param("collectionName")String collectionName,@Param("pageNum")int pageNum,@Param("pageSize")int pageSize) throws IOException {
-       if(pageSize > 5){
-           response.setContentType("application/json;charset=utf-8");
-           response.getOutputStream().println("不能超过5条!");
-           return;
-       }
-        response.setContentType("application/vnd.ms-excel;charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment;filename="+ new String((collectionName + ".xlsx").getBytes(), "iso-8859-1"));
-        statisticsService.exportMongoDbData2ExcelByStream(collectionName,pageNum,pageSize,response.getOutputStream());
+    @RequestMapping(value = "/grid.do", method = RequestMethod.GET)
+    public String grid() {
+        logger.debug("用户分页查询...");
+        Page<SysUser> sysUserPage = sysUserService.findValidSysUserListByPage("T",0,2,"DESC","id");
+        request.setAttribute("sysUserPage",sysUserPage);
+        return "pages/grid";
     }
 }

@@ -1,6 +1,7 @@
 package cn.zain.controller;
 
 
+import cn.zain.model.entity.SysUser;
 import cn.zain.service.SysUserService;
 import cn.zain.util.StringTools;
 import org.apache.commons.lang3.StringUtils;
@@ -23,10 +24,10 @@ import java.util.Map;
 public abstract class AbstractController {
     protected static final Logger logger = LoggerFactory.getLogger(AbstractController.class);
     private final String DEFAULT_USERNAME_KEY = "username";
-    private final String DEFAULT_USERNAME_VALUE = "Zain";
+    private final String DEFAULT_PASSWORD_KEY = "password";
 
     @Resource(name = "sysUserService")
-    private SysUserService sysUserService;
+    protected SysUserService sysUserService;
 
     @Autowired
     protected HttpServletRequest request;
@@ -38,8 +39,11 @@ public abstract class AbstractController {
      */
     protected boolean authCheck() {
         HttpSession session = request.getSession(true);
-        if (DEFAULT_USERNAME_VALUE.equalsIgnoreCase(request.getParameter(DEFAULT_USERNAME_KEY))) {
-            session.setAttribute("sysUser", sysUserService.selectByUsername(DEFAULT_USERNAME_VALUE));
+        String username = request.getParameter(DEFAULT_USERNAME_KEY);
+        String password = request.getParameter(DEFAULT_PASSWORD_KEY);
+        SysUser sysUser = sysUserService.selectByUsername(username);
+        if (null != sysUser && sysUser.getPassword().equals(password)) {
+            session.setAttribute("sysUser", sysUser);
             return true;
         }
         return false;
@@ -60,19 +64,19 @@ public abstract class AbstractController {
         return returnMap;
     }
 
-    protected static Map<String, Object> genFailReturnMap(String errorCode, String errorMsg){
+    protected static Map<String, Object> genFailReturnMap(String errorCode, String errorMsg) {
         logger.info("ServiceHelper.genFailReturnMap() - errorMsg: " + errorMsg);
 
         Map<String, Object> returnMap = new HashMap<String, Object>();
         returnMap.put("result", "1");
-        if(!StringUtils.isBlank(errorCode)) {
+        if (!StringUtils.isBlank(errorCode)) {
             returnMap.put("error_code", errorCode);
         }
         returnMap.put("error_msg", StringTools.nvl(errorMsg, "操作失败。"));
         return returnMap;
     }
 
-    protected static Map<String, Object> genSuccessReturnMap(){
+    protected static Map<String, Object> genSuccessReturnMap() {
         Map<String, Object> returnMap = new HashMap<String, Object>();
         returnMap.put("result", "0");
         return returnMap;
