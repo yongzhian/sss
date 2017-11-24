@@ -4,58 +4,107 @@
        xmlns:context="http://www.springframework.org/schema/context"
        xmlns:tx="http://www.springframework.org/schema/tx"
        xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:jpa="http://www.springframework.org/schema/data/jpa"
        xmlns:mongo="http://www.springframework.org/schema/data/mongo"
 
        xsi:schemaLocation="http://www.springframework.org/schema/beans
-          http://www.springframework.org/schema/beans/spring-beans-4.3.xsd   
+          http://www.springframework.org/schema/beans/spring-beans.xsd
           http://www.springframework.org/schema/context   
-          http://www.springframework.org/schema/context/spring-context-4.3.xsd
+          http://www.springframework.org/schema/context/spring-context.xsd
           http://www.springframework.org/schema/tx
-          http://www.springframework.org/schema/tx/spring-tx-4.3.xsd
+          http://www.springframework.org/schema/tx/spring-tx.xsd
           http://www.springframework.org/schema/aop
-          http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
+          http://www.springframework.org/schema/aop/spring-aop.xsd
+          http://www.springframework.org/schema/data/jpa
+          http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
           http://www.springframework.org/schema/data/mongo
           http://www.springframework.org/schema/data/mongo/spring-mongo.xsd">
 
     <context:annotation-config/>
-    <!--注解扫描但排除Controller-->
+    <!--注解扫描,但排除Controller，重复扫描会有问题-->
     <context:component-scan base-package="cn.zain">
         <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
     </context:component-scan>
 
+    <!-- druid监控 -->
+    <bean id="stat" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="slowSqlMillis" value="3000"/>
+        <property name="logSlowSql" value="true"/>
+        <property name="mergeSql" value="true"/>
+    </bean>
+
+    <bean id="propertyConfigurer"
+          class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath*:/*.properties</value>
+            </list>
+        </property>
+    </bean>
+
     <!-- 配置数据源 -->
-    <bean id="dataSource" class="org.apache.commons.dbcp2.BasicDataSource">
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" init-method="init" destroy-method="close">
+        <!--driverClassName 根据url自动识别-->
         <property name="username" value="${db.username}"></property>
         <property name="password" value="${db.password}"></property>
         <property name="url" value="${db.url}"></property>
         <property name="driverClassName" value="${db.driver}"></property>
-        <!-- 连接初始值，连接池启动时创建的连接数量的初始值  默认值是0 -->
-        <property name="initialSize" value="${db.initialSize}"></property>
-        <!--可以在池中保持空闲的最小连接数，超出设置值之外的空闲连接将被创建，如设置为0，则不创建-->
-        <property name="minIdle" value="${db.minIdle}"></property>
-        <!--保持空闲的最大连接数，超出设置值之外的空闲连接将被回收，如设置为负数，则不限制-->
-        <property name="maxIdle" value="${db.maxIdle}"></property>
-        <!--可以在这个池中同时被分配的有效连接数的最大值，如设置为负数，则不限制-->
-        <property name="maxTotal" value="${db.maxTotal}"></property>
-        <!--（如果没有可用连接）池在抛出异常前等待的一个连接被归还的最大毫秒数，设置为-1则等待时间不确定-->
-        <property name="maxWaitMillis" value="${db.maxWaitMillis}"></property>
-        <property name="validationQuery" value="SELECT 1"></property>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="stat"/>
+            </list>
+        </property>
+        <property name="maxActive" value="20"/>
+        <property name="initialSize" value="5"/>
+        <property name="maxWait" value="60000"/>
+        <property name="minIdle" value="1"/>
+        <property name="timeBetweenEvictionRunsMillis" value="3000"/>
+        <property name="minEvictableIdleTimeMillis" value="300000"/>
+        <property name="validationQuery" value="SELECT 'x'"/>
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="poolPreparedStatements" value="true"/>
+        <property name="maxPoolPreparedStatementPerConnectionSize" value="20"/>
     </bean>
 
-    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+    <!--JPA entiyFactory Seting-->
+    <bean id="entityManagerFactory"
+          class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
         <property name="dataSource" ref="dataSource"/>
-        <property name="configLocation" value="classpath:mybatis-conf.xml"></property>
-        <property name="mapperLocations" value="classpath*:mybatis/*Dao.xml"></property>
+        <property name="jpaVendorAdapter">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+                <property name="database" value="MYSQL"></property>
+                <property name="showSql" value="true"/>
+                <property name="generateDdl" value="false"/>
+                <property name="databasePlatform" value="org.hibernate.dialect.MySQLDialect"/>
+            </bean>
+        </property>
+        <!-- 指定了packagesToScan则不需要persistence.xml -->
+        <property name="packagesToScan" >
+            <list>
+                <value>cn.zain.model</value>
+            </list>
+        </property>
+        <property name="jpaDialect">
+            <bean class="org.springframework.orm.jpa.vendor.HibernateJpaDialect"/>
+        </property>
     </bean>
 
+    <!--事务管理器-->
     <bean id="transactionManager"
-          class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
-        <property name="dataSource" ref="dataSource"/>
+          class="org.springframework.orm.jpa.JpaTransactionManager">
+        <property name="entityManagerFactory" ref="entityManagerFactory"/>
     </bean>
+
+    <!-- 需要在 <beans> 标签中增加对 jpa 命名空间的引用 -->
+    <jpa:repositories base-package="cn.zain.dao"
+                      entity-manager-factory-ref="entityManagerFactory"
+                      transaction-manager-ref="transactionManager"/>
 
     <!-- 配置事务 transaction-manager="transactionManager" 默认 故不需配置
     propagation:事务传播行为-->
-    <tx:advice id="txAdvice">
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
         <tx:attributes>
             <tx:method name="find*" read-only="true"/>
             <tx:method name="get*" read-only="true"/>
@@ -70,36 +119,21 @@
         <aop:advisor pointcut-ref="AllServiceMethod" advice-ref="txAdvice"/>
     </aop:config>
 
-    <!--动态代理实现 不用写dao的实现-->
-    <bean id="MapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">
-        <property name="sqlSessionFactoryBeanName" value="sqlSessionFactory"></property>
-        <property name="basePackage" value="cn.zain.dao"/>
-    </bean>
-
-    <!-- 上面使用动态代理故不需要逐个配置
-    <bean id="sysUserDao" class="org.mybatis.spring.mapper.MapperFactoryBean">
-        <property name="mapperInterface" value="cn.zain.dao.SysUserDao"></property>
-        <property name="sqlSessionFactory" ref="sqlSessionFactory"></property>
-    </bean>-->
-
-    <mongo:mongo host="${mongo.host}" port="${mongo.port}">
-        <mongo:options connections-per-host="${mongo.options.connections.per.host}"
-                       threads-allowed-to-block-for-connection-multiplier="${mongo.options.threads.allowed.to.block.for.connection.multiplier}"
-                       connect-timeout="${mongo.options.connect.timeout}"
-                       max-wait-time="${mongo.options.max.wait.time}"
-                       auto-connect-retry="${mongo.options.auto.connect.retry}"
-                       socket-keep-alive="${mongo.options.socket.keep.alive}"
-                       socket-timeout="${mongo.options.socket.timeout}"
-                       slave-ok="${mongo.options.slave.ok}"
-                       write-number="${mongo.options.write.number}"
-                       write-timeout="${mongo.options.write.timeout}"
-                       write-fsync="${mongo.options.write.fsync}"/>
-    </mongo:mongo>
+    <mongo:mongo-client host="${mongo.host}" port="${mongo.port}" id="mongo">
+        <mongo:client-options write-concern="SAFE"
+                              connections-per-host="${mongo.options.connections.per.host}"
+                              threads-allowed-to-block-for-connection-multiplier="${mongo.options.threads.allowed.to.block.for.connection.multiplier}"
+                              connect-timeout="${mongo.options.connect.timeout}"
+                              max-wait-time="${mongo.options.max.wait.time}"
+                              socket-keep-alive="${mongo.options.socket.keep.alive}"
+                              socket-timeout="${mongo.options.socket.timeout}"
+        />
+    </mongo:mongo-client>
 
     <mongo:db-factory id="doseeDbFactory" dbname="${mongo.db.name}" mongo-ref="mongo"/>
 
     <bean id="mongoTemplate" class="org.springframework.data.mongodb.core.MongoTemplate">
-        <constructor-arg name="mongoDbFactory" ref="doseeDbFactory" />
+        <constructor-arg name="mongoDbFactory" ref="doseeDbFactory"/>
     </bean>
 
 </beans>

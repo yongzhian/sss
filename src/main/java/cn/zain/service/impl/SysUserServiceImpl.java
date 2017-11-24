@@ -22,4 +22,9 @@ public class SysUserServiceImpl implements SysUserService {
     public SysUser selectByUsername(String username) {
         return sysUserDao.selectByUsername(username);
     }
+
+    @Override
+    public void save(SysUser sysUser) {
+        sysUserDao.save(sysUser);
+    }
 }

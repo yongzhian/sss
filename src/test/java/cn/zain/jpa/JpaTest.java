@@ -1,9 +1,11 @@
-package cn.zain;
+package cn.zain.jpa;
 
-import cn.zain.model.entity.SysUser;
+import cn.zain.jpa.dao.SysUserDao;
+import cn.zain.jpa.model.SysUser;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -30,5 +32,24 @@ public class JpaTest {
         em.persist(sysUser);
         em.getTransaction().commit();
         emf.close();
+    }
+
+    /**
+     * persistence.xml不需要，自动扫描Entity包
+     * @throws Exception
+     */
+    @Test
+    public void jpaTest() throws Exception {
+        ClassPathXmlApplicationContext ctx =
+                new ClassPathXmlApplicationContext("spring-jpa-cfg.xml");
+        SysUserDao sysUserDao = ctx.getBean("sysUserDao", SysUserDao.class);
+        SysUser sysUser = new SysUser();
+        sysUser.setUsername("yyy22");
+        sysUser.setPassword("9527");
+        sysUser.setIsValid("T");
+        sysUser.setCreateTime(new Date());
+        sysUser.setIsLocked("F");
+        sysUserDao.save(sysUser);
+        logger.info("查询用户,{}",sysUserDao.selectByUsername("yyy"));
     }
 }

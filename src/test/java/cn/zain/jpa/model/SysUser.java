@@ -1,4 +1,6 @@
-package cn.zain.model.entity;
+package cn.zain.jpa.model;
+
+import org.springframework.stereotype.Component;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -30,11 +32,7 @@ public class SysUser implements Serializable {
     @Column(name = "is_valid")
     private String isValid;
 
-    /**
-     * 获取自己想要的格式类型
-     */
     @Column(name = "create_time")
-    @Temporal(TemporalType.DATE)
     private Date createTime;
 
     private Date lastLogin;

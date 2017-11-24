@@ -13,4 +13,11 @@ public interface SysUserService {
      * @return SysUser
      */
     SysUser selectByUsername(String username);
+
+    /**
+     * 功能说明 ： 添加用户
+     *
+     * @param sysUser SysUser
+     */
+    void save(SysUser sysUser);
 }

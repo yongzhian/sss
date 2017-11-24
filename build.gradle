@@ -13,9 +13,10 @@ targetCompatibility = 1.8
 
 ext {
     projectBuildName = "sss"
-    orgSpringframeworkVersion = "4.3.12.RELEASE"
+    orgSpringframeworkVersion = "5.0.1.RELEASE"
+    orgMongodbVersion="3.4.2"
     mysqlVersion = "5.1.44"
-    orgSpringframeworkDataMongodb = "1.9.2.RELEASE"
+    orgSpringframeworkData = "2.0.1.RELEASE"
     jacksonVersion = "2.9.0"
     log4jVersion = "2.9.1"
     orgApacheCommonsDbcp2Version = "2.1.1"
@@ -34,24 +35,29 @@ repositories {
 
 dependencies {
     compile("org.springframework:spring-webmvc:$orgSpringframeworkVersion")
-    compile 'org.springframework.data:spring-data-jpa:2.0.1.RELEASE'
+    compile("org.springframework.data:spring-data-jpa:$orgSpringframeworkData")
     compile("org.springframework:spring-test:$orgSpringframeworkVersion")
+    compile("org.aspectj:aspectjweaver:1.8.13")
 
     compile("org.hibernate:hibernate-core:5.2.12.Final")
 
     //mysql依赖 使用变量必须用括号和双引号
     compile("mysql:mysql-connector-java:$mysqlVersion")
-    compile("org.springframework.data:spring-data-mongodb:$orgSpringframeworkDataMongodb")
+    compile("org.springframework.data:spring-data-mongodb:$orgSpringframeworkData")
+    compile("org.mongodb:mongo-java-driver:${orgMongodbVersion}")
 
     compile("org.apache.commons:commons-lang3:3.3.1")
     compile("com.fasterxml.jackson.core:jackson-databind:$jacksonVersion")
     compile("com.fasterxml.jackson.dataformat:jackson-dataformat-xml:$jacksonVersion")
     compile("org.apache.httpcomponents:httpclient:4.5.3")
     compile("org.apache.poi:poi-ooxml:3.16")
-    compile("org.apache.commons:commons-dbcp2:$orgApacheCommonsDbcp2Version")
+    compile("com.alibaba:druid:1.1.5")
 
     compile (group: 'org.apache.logging.log4j', name: 'log4j-slf4j-impl', version: "$log4jVersion")
 
     providedCompile("javax.servlet:servlet-api:2.5")
+
+    testCompile("org.apache.commons:commons-dbcp2:$orgApacheCommonsDbcp2Version")
+
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
