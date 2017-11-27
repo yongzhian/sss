@@ -15,11 +15,16 @@
 
 <a href="<%=path%>/sysuser/grid.do">查看用户信息</a>
 
-
+<hr>
+用户名：<input id="username" value="XXX" /><br><br>
+密码:<input type="password" id="password" /><br><br>
+是否锁定:<input type="is_valid" id="isLocked" value="F" /><br><br>
+是否有效:<input type="is_valid" id="isValid" value="T" /><br><br>
+<button onclick="addUser('<%=path%>')" >添加</button><br><br><br>
 
 <h5>Power by Zain 2017年11月24日</h5>
 
-<script charset="utf-8" type="text/javascript" src="/lib/jquery/1.9.1/jquery.js"></script>
-<script charset="utf-8" type="text/javascript" src="/static/js/index.js"></script>
+<script charset="utf-8" type="text/javascript" src="<%=path%>/lib/jquery/1.9.1/jquery.js"></script>
+<script charset="utf-8" type="text/javascript" src="<%=path%>/static/js/index.js"></script>
 </body>
 </html>

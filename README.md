@@ -22,7 +22,7 @@ Spring通过DispatcherServlet启动Servlet进行HTTP请求处理。
 1. 基于JPA的事务管理
 1. 基于SpringDataJpa简化Dao（JpaRepository接口，自动实现部分数据库查询方法）
 1. 基于Spring Tx方式注解进行事务控制
-
+1. 包括登录、查询、用户添加功能
 
 ##### 版本说明
 

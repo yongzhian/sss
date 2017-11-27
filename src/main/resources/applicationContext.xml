@@ -33,6 +33,7 @@
         <property name="mergeSql" value="true"/>
     </bean>
 
+    <!--也可以使用注解context:property-placeholder-->
     <bean id="propertyConfigurer"
           class="org.springframework.beans.factory.config.PreferencesPlaceholderConfigurer">
         <property name="locations">

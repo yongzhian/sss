@@ -6,6 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -56,5 +58,16 @@ public class SysUserController extends AbstractController{
         Page<SysUser> sysUserPage = sysUserService.findValidSysUserListByPage("T",0,2,"DESC","id");
         request.setAttribute("sysUserPage",sysUserPage);
         return "pages/grid";
+    }
+
+    @RequestMapping(value = "/add.do", method = RequestMethod.POST)
+    @ResponseBody
+    public Map<String, Object> add(@ModelAttribute()SysUser sysUser) {
+        logger.debug("用户添加...");
+        sysUser.setCreateTime(new Date());
+        sysUserService.save(sysUser);
+        Map<String, Object> returnMap = new HashMap<>();
+        returnMap.put("result", 0);
+        return returnMap;
     }
 }
